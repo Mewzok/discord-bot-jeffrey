@@ -1,5 +1,7 @@
 import os
 import discord
+import asyncio
+import re
 from discord.ext import commands
 from dotenv import load_dotenv
 from emoji import is_emoji
@@ -121,6 +123,37 @@ async def clear(ctx, amount: int):
 
     # inform of message deletion
     await ctx.send(f"Successfully cleared {len(deleted)} messages.")
+
+@bot.command()
+async def remind(ctx, time_str: str, *, reminder_text: str):
+    await ctx.message.delete()
+    time_string = time_str.lower().strip()
+
+    pattern = r"(\d+)([a-zA-Z])"
+    matches = re.findall(pattern, time_string)
+
+    unit_multipliers = {
+        'h': 3600,
+        'm': 60,
+        's': 1
+    }
+
+    total_seconds = 0
+    for value, unit in matches:
+        val_int = int(value)
+        total_seconds += val_int * unit_multipliers.get(unit.lower(), 0)
+
+    try:
+        await ctx.author.send(f"I set a reminder for {time_str} to {reminder_text}.")
+    except discord.Forbidden:
+        await ctx.send(f"{ctx.author.mention}, I tried to DM you about your reminder but your privacy settings blocked me... {reminder_text}")
+
+    await asyncio.sleep(total_seconds)
+
+    try:
+        await ctx.author.send(f"**Reminder:** {reminder_text}")
+    except discord.Forbidden:
+        await ctx.send(f"{ctx.author.mention}, I tried to DM your reminder but your privacy settings blocked me... {reminder_text}")
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 
