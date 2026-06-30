@@ -109,6 +109,18 @@ async def poll(ctx, *args):
     for emoji in reactions_to_add:
         await message.add_reaction(emoji)
 
+# clear command
+@bot.command()
+async def clear(ctx, amount: int):
+    # deletes clear message first
+    await ctx.message.delete()
+
+    # deletes specified number of past messages
+    deleted = await ctx.channel.purge(limit=amount)
+
+    # inform of message deletion
+    await ctx.send(f"Successfully cleared {len(deleted)} messages.")
+
 TOKEN = os.getenv('DISCORD_TOKEN')
 
 if TOKEN is None:
