@@ -111,6 +111,7 @@ async def poll(ctx, *args):
 
 # clear command
 @bot.command()
+@commands.has_permissions(manage_messages=True)
 async def clear(ctx, amount: int):
     # deletes clear message first
     await ctx.message.delete()
