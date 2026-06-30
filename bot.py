@@ -50,6 +50,22 @@ async def stats(ctx):
     )
     await ctx.send(response)
 
+# welcome event
+@bot.event
+async def on_member_join(member):
+    channel_id_str = os.getenv("WELCOME_CHANNEL_ID")
+
+    if channel_id_str is None:
+        print("Error: WELCOME_CHANNEL_ID is missing from your .env file!")
+        return
+    
+    channel_id = int(channel_id_str)
+
+    channel = bot.get_channel(channel_id) or await bot.fetch_channel(channel_id)
+
+    if isinstance(channel, discord.TextChannel):
+        await channel.send(f"Welcome to the server, {member.mention}! I'm so glad you're here! I'd really appreciate it if you could help me.")
+
 # run through this function to prevent users from voting on multiple options at once
 @bot.event
 async def on_raw_reaction_add(payload):
@@ -154,6 +170,13 @@ async def remind(ctx, time_str: str, *, reminder_text: str):
         await ctx.author.send(f"**Reminder:** {reminder_text}")
     except discord.Forbidden:
         await ctx.send(f"{ctx.author.mention}, I tried to DM your reminder but your privacy settings blocked me... {reminder_text}")
+
+@bot.command()
+async def testjoin(ctx):
+    fake_new_member = ctx.author
+    bot.dispatch("member_join", fake_new_member)
+
+    await ctx.send("Simulating a new member joining...")
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 
